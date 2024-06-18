@@ -1,32 +1,39 @@
 package org.cneko.toneko.common.util.scheduled;
 
-import org.cneko.toneko.bukkit.util.BukkitSchedulerPool;
-import org.cneko.toneko.bukkit.util.FoliaSchedulerPoolImpl;
-import org.cneko.toneko.fabric.util.FabricSchedulerPoolImpl;
 import org.jetbrains.annotations.NotNull;
 
 public class SchedulerPoolProvider {
     private static final ISchedulerPool INSTANCE;
 
+    private static boolean tryLoadClass(String name){
+        try {
+            Class.forName(name);
+        } catch (ClassNotFoundException ignored){
+            return false;
+        }
+        return true;
+    }
+
     static {
-        ISchedulerPool warpped;
+        Object warpped = null;
 
         try {
-            Class.forName("org.bukkit.Server"); //Check if is bukkit
-
-            try {
-                Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-                //Folia platform
-                warpped = new FoliaSchedulerPoolImpl();
-            }catch (Exception ignored){
-                //Non folia platform
-                warpped = new BukkitSchedulerPool();
+            if (tryLoadClass("io.papermc.paper.threadedregions.RegionizedServer")) {
+                warpped = Class.forName("org.cneko.toneko.bukkit.util.FoliaSchedulerPoolImpl").getDeclaredConstructor().newInstance();
+            } else if (tryLoadClass("org.bukkit.Server")) {
+                warpped = Class.forName("org.cneko.toneko.bukkit.util.BukkitSchedulerPool").getDeclaredConstructor().newInstance();
+            } else if (tryLoadClass("org.cneko.toneko.fabric.ToNeko")) {
+                warpped = Class.forName("org.cneko.toneko.fabric.util.FabricSchedulerPoolImpl").getDeclaredConstructor().newInstance();
             }
-        }catch (Exception ignored){
-            warpped = new FabricSchedulerPoolImpl();
+        } catch (Throwable ex) {
+            throw new RuntimeException("could not init schedule pool", ex);
         }
 
-        INSTANCE = warpped;
+        if (!(warpped instanceof ISchedulerPool)){
+            throw new RuntimeException("could not init schedule pool");
+        }
+
+        INSTANCE = (ISchedulerPool)warpped;
     }
 
     @NotNull
