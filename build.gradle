@@ -21,6 +21,8 @@ subprojects {
 
     apply plugin: "java"
 
+    version = version + "+" + project.name
+
     repositories {
         mavenCentral()
         maven {
