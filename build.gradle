@@ -57,6 +57,7 @@ subprojects {
     apply plugin: "com.github.johnrengelman.shadow"
 
     dependencies {
+        implementation project(":common")
         shadow project(":common")
         //使用下边的配置以将ctlibmod直接打包进jar
         //shadow "maven.modrinth:ctlibmod:${ctlibmod_version}"
