@@ -43,7 +43,7 @@ subprojects {
         //implementation "net.neoforged:neoforge:20.4.210"
         //modImplementation "maven.modrinth:ctlib:aftzbFe4"
         compileOnly 'org.jetbrains:annotations:24.0.0'
-        compileOnly "maven.modrinth:ctlibmod:${ctlibmod_version}"
+        implementation "maven.modrinth:ctlibmod:${ctlibmod_version}"
     }
 
 }
